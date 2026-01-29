@@ -10,10 +10,13 @@ function initStorage() {
     
     if (!localStorage.getItem(STORAGE_KEYS.ADMIN)) {
         const defaultAdmin = {
-            username: 'admin',
-            password: hashPassword('admin123')
+            username: 'EMS',
+            password: hashPassword('7408574')
         };
         localStorage.setItem(STORAGE_KEYS.ADMIN, JSON.stringify(defaultAdmin));
+    } else {
+        // Update existing credentials to new values
+        updateAdminCredentials('EMS', '7408574');
     }
 }
 

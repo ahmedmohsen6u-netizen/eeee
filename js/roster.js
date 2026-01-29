@@ -2,14 +2,16 @@ const DEPARTMENTS = {
     'MANAGEMENT_STAFF': 'MANGMENT STAFF',
     'HOSPITAL_SUPERVISOR': 'Hospital Supervisor',
     'HUMAN_RESOURCES': 'Human resources',
+    'CHIEF_OF_DOCTOR': 'Chief of Doctor',
     'DOCTORS': 'Doctors',
+    'EMS_SUPERVISOR': 'EMS Supervisor',
     'MEDICAL_DIRECTOR': 'Medical Director',
-    'PARAMEDIC_SUPERVISOR': 'Paramedic Supervisor',
-    'PARAMEDIC_OFFICER': 'Paramedic Officer/Lead Paramedic (Call signs From P-01 to P-20)',
-    'CRITICAL_CARE': 'Critical Care Paramedic/Licensed Paramedic (Call signs From P-01 to P-20)',
+    'PARAMEDIC_SUPERVISOR': 'Paramedic Officer',
+    'PARAMEDIC_OFFICER': 'Licensed Paramedic (Call signs From P-01 to P-20)',
     'SENIOR_PARAMEDICS': 'Senior Paramedics and Paramedics (Call signs From P-21 to P-39)',
-    'SENIOR_EMT': 'Senior EMT and EMT (Call signs From E-40 to E-79)',
-    'CADET_STUDENTS': 'Cadet / Students (Call Signs From C-80 to C-99)'
+    'SENIOR_EMT': 'Advanced EMT and EMT (Call signs From E-40 to E-59)',
+    'ECA': 'ECA (Call signs From E-60 to E-79)',
+    'CADET_STUDENTS': 'Students (Call Signs From C-80 to C-99)'
 };
 
 function renderRoster() {
@@ -43,6 +45,34 @@ function renderRoster() {
         `;
         
         if (deptMembers && deptMembers.length > 0) {
+            // Sort members within SENIOR_PARAMEDICS department: Senior Paramedics first, then Paramedics
+            if (deptKey === 'SENIOR_PARAMEDICS') {
+                deptMembers.sort((a, b) => {
+                    const aIsSenior = (a.title === 'Senior Paramedics');
+                    const bIsSenior = (b.title === 'Senior Paramedics');
+                    
+                    if (aIsSenior && !bIsSenior) return -1;
+                    if (!aIsSenior && bIsSenior) return 1;
+                    
+                    // If both have same title level, sort by callsign
+                    return (a.callsign || '').localeCompare(b.callsign || '');
+                });
+            }
+            
+            // Sort members within SENIOR_EMT department: Advanced EMT first, then EMT
+            if (deptKey === 'SENIOR_EMT') {
+                deptMembers.sort((a, b) => {
+                    const aIsAdvanced = (a.title === 'Advanced EMT');
+                    const bIsAdvanced = (b.title === 'Advanced EMT');
+                    
+                    if (aIsAdvanced && !bIsAdvanced) return -1;
+                    if (!aIsAdvanced && bIsAdvanced) return 1;
+                    
+                    // If both have same title level, sort by callsign
+                    return (a.callsign || '').localeCompare(b.callsign || '');
+                });
+            }
+            
             deptMembers.forEach(member => {
                 html += `
                     <tr class="fade-in">
@@ -88,42 +118,96 @@ function showMemberDetails(memberId) {
     const member = getMemberById(memberId);
     if (!member) return;
     
-    const modal = document.getElementById('memberModal');
-    const modalPhoto = document.getElementById('modalPhoto');
-    const modalName = document.getElementById('modalName');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalDepartment = document.getElementById('modalDepartment');
-    const modalCallsign = document.getElementById('modalCallsign');
-    const modalDiscord = document.getElementById('modalDiscord');
+    const memberInfo = `
+📋 **معلومات العضو**
+
+👤 **الاسم:** ${member.firstName || ''} ${member.lastName || ''}
+💼 **المنصب:** ${member.title || ''}
+🏥 **القسم:** ${DEPARTMENTS[member.department] || ''}
+📞 **الرمز:** ${member.callsign || 'غير متوفر'}
+💬 **ديسكورد:** ${member.discord || 'غير متوفر'}
+📅 **تاريخ التوظيف:** ${member.hireDate || 'غير متوفر'}
+🎖️ **آخر ترقية:** ${member.lastPromotion || 'غير متوفر'}
+✈️ **MI:** ${member.mi ? '✅ متوفر' : '❌ غير متوفر'}
+🚁 **AIR:** ${member.air ? '✅ متوفر' : '❌ غير متوفر'}
+🚓 **FP:** ${member.fp ? '✅ متوفر' : '❌ غير متوفر'}
+📝 **ملاحظات:** ${member.notes || 'لا توجد ملاحظات'}
+    `;
     
     if (member.photo) {
-        modalPhoto.src = member.photo;
-        modalPhoto.style.display = 'block';
+        showCustomDialogWithImage(memberInfo, member.photo, `${member.firstName || ''} ${member.lastName || ''}`);
     } else {
-        modalPhoto.style.display = 'none';
+        showCustomDialog(memberInfo, `${member.firstName || ''} ${member.lastName || ''}`);
     }
-    
-    modalName.textContent = `${member.firstName || ''} ${member.lastName || ''}`;
-    modalTitle.textContent = member.title || '';
-    modalDepartment.textContent = DEPARTMENTS[member.department] || '';
-    modalCallsign.textContent = member.callsign ? `Callsign: ${member.callsign}` : '';
-    modalDiscord.textContent = member.discord ? `Discord: ${member.discord}` : '';
-    
-    modal.classList.add('active');
 }
 
 function closeMemberDetails() {
-    const modal = document.getElementById('memberModal');
-    modal.classList.remove('active');
+    closeCustomDialog();
+}
+
+function showCustomDialog(message, title = 'معلومات') {
+    const dialogOverlay = document.createElement('div');
+    dialogOverlay.className = 'custom-dialog-overlay';
+    dialogOverlay.innerHTML = `
+        <div class="custom-dialog">
+            <div class="custom-dialog-header">
+                <h3>${title}</h3>
+                <button class="custom-dialog-close" onclick="closeCustomDialog()">×</button>
+            </div>
+            <div class="custom-dialog-body">
+                <pre style="white-space: pre-wrap; font-family: 'Cairo', sans-serif; line-height: 1.6;">${message}</pre>
+            </div>
+            <div class="custom-dialog-footer">
+                <button class="btn btn-primary" onclick="closeCustomDialog()">إغلاق</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(dialogOverlay);
+    setTimeout(() => dialogOverlay.classList.add('active'), 10);
+}
+
+function showCustomDialogWithImage(message, imageUrl, title = 'معلومات') {
+    const dialogOverlay = document.createElement('div');
+    dialogOverlay.className = 'custom-dialog-overlay';
+    dialogOverlay.innerHTML = `
+        <div class="custom-dialog custom-dialog-with-image">
+            <div class="custom-dialog-header">
+                <h3>${title}</h3>
+                <button class="custom-dialog-close" onclick="closeCustomDialog()">×</button>
+            </div>
+            <div class="custom-dialog-body">
+                <div class="dialog-image-container">
+                    <img src="${imageUrl}" alt="${title}" class="dialog-member-photo">
+                </div>
+                <div class="dialog-info">
+                    <pre style="white-space: pre-wrap; font-family: 'Cairo', sans-serif; line-height: 1.6;">${message}</pre>
+                </div>
+            </div>
+            <div class="custom-dialog-footer">
+                <button class="btn btn-primary" onclick="closeCustomDialog()">إغلاق</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(dialogOverlay);
+    setTimeout(() => dialogOverlay.classList.add('active'), 10);
+}
+
+function closeCustomDialog() {
+    const dialog = document.querySelector('.custom-dialog-overlay');
+    if (dialog) {
+        dialog.classList.remove('active');
+        setTimeout(() => dialog.remove(), 300);
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
     renderRoster();
     
-    const modal = document.getElementById('memberModal');
-    modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
-            closeMemberDetails();
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeCustomDialog();
         }
     });
 });

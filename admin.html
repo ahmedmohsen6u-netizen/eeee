@@ -22,6 +22,7 @@
     <meta name="twitter:description" content="نظام إدارة الروستر الطبي لخدمات الطوارئ الطبية">
     <meta name="twitter:image" content="https://emsroster.netlify.app/B5C96CFC-040F-400C-ACFA-7E7A7CFD82CD-removebg-preview.png">
     
+    <link rel="icon" type="image/png" href="B5C96CFC-040F-400C-ACFA-7E7A7CFD82CD-removebg-preview.png">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -62,13 +63,34 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="title">المسمى الوظيفي</label>
-                        <input type="text" id="title" name="title">
+                        <label for="title">المسمى الوظيفي *</label>
+                        <select id="title" name="title" required onchange="setDepartmentByTitle()">
+                            <option value="">اختر المسمى الوظيفي</option>
+                            <option value="DEPUTY CHIEF">DEPUTY CHIEF</option>
+                            <option value="CHIEF OF HOSPITAL">CHIEF OF HOSPITAL</option>
+                            <option value="Hospital supervisor">Hospital supervisor</option>
+                            <option value="Human Resources">Human Resources</option>
+                            <option value="CHIEF OF DOCTOR">CHIEF OF DOCTOR</option>
+                            <option value="DOCTOR">DOCTOR</option>
+                            <option value="Junior Doctor">Junior Doctor</option>
+                            <option value="EMS Supervisor">EMS Supervisor</option>
+                            <option value="Medical Director">Medical Director</option>
+                            <option value="Paramedic Officer">Paramedic Officer</option>
+                            <option value="Licensed Paramedic">Licensed Paramedic</option>
+                            <option value="Paramedics">Paramedics</option>
+                            <option value="Senior Paramedics">Senior Paramedics</option>
+                            <option value="EMT">EMT</option>
+                            <option value="Advanced EMT">Advanced EMT</option>
+                            <option value="ECA">ECA</option>
+                            <option value="Students">Students</option>
+                        </select>
                     </div>
                     
                     <div class="form-group">
                         <label for="callsign">رمز النداء</label>
-                        <input type="text" id="callsign" name="callsign">
+                        <select id="callsign" name="callsign">
+                            <option value="">اختر رمز النداء</option>
+                        </select>
                     </div>
                     
                     <div class="form-group">
@@ -87,21 +109,9 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="department">القسم *</label>
-                        <select id="department" name="department" required>
-                            <option value="">اختر القسم</option>
-                            <option value="MANAGEMENT_STAFF">MANGMENT STAFF</option>
-                            <option value="HOSPITAL_SUPERVISOR">Hospital Supervisor</option>
-                            <option value="HUMAN_RESOURCES">Human resources</option>
-                            <option value="DOCTORS">Doctors</option>
-                            <option value="MEDICAL_DIRECTOR">Medical Director</option>
-                            <option value="PARAMEDIC_SUPERVISOR">Paramedic Supervisor</option>
-                            <option value="PARAMEDIC_OFFICER">Paramedic Officer/Lead Paramedic (Call signs From P-01 to P-20)</option>
-                            <option value="CRITICAL_CARE">Critical Care Paramedic/Licensed Paramedic (Call signs From P-01 to P-20)</option>
-                            <option value="SENIOR_PARAMEDICS">Senior Paramedics and Paramedics (Call signs From P-21 to P-39)</option>
-                            <option value="SENIOR_EMT">Senior EMT and EMT (Call signs From E-40 to E-79)</option>
-                            <option value="CADET_STUDENTS">Cadet / Students (Call Signs From C-80 to C-99)</option>
-                        </select>
+                        <label for="department">القسم</label>
+                        <input type="text" id="department" name="department" readonly style="background-color: #f5f5f5; cursor: not-allowed;">
+                        <input type="hidden" id="departmentValue" name="departmentValue">
                     </div>
                 </div>
                 
@@ -189,13 +199,34 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="editTitle">المسمى الوظيفي</label>
-                        <input type="text" id="editTitle" name="title">
+                        <label for="editTitle">المسمى الوظيفي *</label>
+                        <select id="editTitle" name="title" required onchange="setEditDepartmentByTitle()">
+                            <option value="">اختر المسمى الوظيفي</option>
+                            <option value="DEPUTY CHIEF">DEPUTY CHIEF</option>
+                            <option value="CHIEF OF HOSPITAL">CHIEF OF HOSPITAL</option>
+                            <option value="Hospital supervisor">Hospital supervisor</option>
+                            <option value="Human Resources">Human Resources</option>
+                            <option value="CHIEF OF DOCTOR">CHIEF OF DOCTOR</option>
+                            <option value="DOCTOR">DOCTOR</option>
+                            <option value="Junior Doctor">Junior Doctor</option>
+                            <option value="EMS Supervisor">EMS Supervisor</option>
+                            <option value="Medical Director">Medical Director</option>
+                            <option value="Paramedic Officer">Paramedic Officer</option>
+                            <option value="Licensed Paramedic">Licensed Paramedic</option>
+                            <option value="Paramedics">Paramedics</option>
+                            <option value="Senior Paramedics">Senior Paramedics</option>
+                            <option value="EMT">EMT</option>
+                            <option value="Advanced EMT">Advanced EMT</option>
+                            <option value="ECA">ECA</option>
+                            <option value="Students">Students</option>
+                        </select>
                     </div>
                     
                     <div class="form-group">
                         <label for="editCallsign">رمز النداء</label>
-                        <input type="text" id="editCallsign" name="callsign">
+                        <select id="editCallsign" name="callsign">
+                            <option value="">اختر رمز النداء</option>
+                        </select>
                     </div>
                     
                     <div class="form-group">
@@ -214,21 +245,9 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="editDepartment">القسم *</label>
-                        <select id="editDepartment" name="department" required>
-                            <option value="">اختر القسم</option>
-                            <option value="MANAGEMENT_STAFF">MANGMENT STAFF</option>
-                            <option value="HOSPITAL_SUPERVISOR">Hospital Supervisor</option>
-                            <option value="HUMAN_RESOURCES">Human resources</option>
-                            <option value="DOCTORS">Doctors</option>
-                            <option value="MEDICAL_DIRECTOR">Medical Director</option>
-                            <option value="PARAMEDIC_SUPERVISOR">Paramedic Supervisor</option>
-                            <option value="PARAMEDIC_OFFICER">Paramedic Officer/Lead Paramedic (Call signs From P-01 to P-20)</option>
-                            <option value="CRITICAL_CARE">Critical Care Paramedic/Licensed Paramedic (Call signs From P-01 to P-20)</option>
-                            <option value="SENIOR_PARAMEDICS">Senior Paramedics and Paramedics (Call signs From P-21 to P-39)</option>
-                            <option value="SENIOR_EMT">Senior EMT and EMT (Call signs From E-40 to E-79)</option>
-                            <option value="CADET_STUDENTS">Cadet / Students (Call Signs From C-80 to C-99)</option>
-                        </select>
+                        <label for="editDepartment">القسم</label>
+                        <input type="text" id="editDepartment" name="department" readonly style="background-color: #f5f5f5; cursor: not-allowed;">
+                        <input type="hidden" id="editDepartmentValue" name="departmentValue">
                     </div>
                 </div>
                 

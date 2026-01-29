@@ -2,18 +2,162 @@ const DEPARTMENTS_MAP = {
     'MANAGEMENT_STAFF': 'MANGMENT STAFF',
     'HOSPITAL_SUPERVISOR': 'Hospital Supervisor',
     'HUMAN_RESOURCES': 'Human resources',
+    'CHIEF_OF_DOCTOR': 'Chief of Doctor',
+    'DOCTORS': 'Doctors',
+    'EMS_SUPERVISOR': 'EMS Supervisor',
     'MEDICAL_DIRECTOR': 'Medical Director',
-    'PARAMEDIC_SUPERVISOR': 'Paramedic Supervisor',
-    'PARAMEDIC_OFFICER': 'Paramedic Officer/Lead Paramedic (Call signs From P-01 to P-20)',
-    'CRITICAL_CARE': 'Critical Care Paramedic/Licensed Paramedic (Call signs From P-01 to P-20)',
+    'PARAMEDIC_SUPERVISOR': 'Paramedic Officer',
+    'PARAMEDIC_OFFICER': 'Licensed Paramedic (Call signs From P-01 to P-20)',
     'SENIOR_PARAMEDICS': 'Senior Paramedics and Paramedics (Call signs From P-21 to P-39)',
-    'SENIOR_EMT': 'Senior EMT and EMT (Call signs From E-40 to E-79)',
-    'CADET_STUDENTS': 'Cadet / Students (Call Signs From C-80 to C-99)'
+    'SENIOR_EMT': 'Advanced EMT and EMT (Call signs From E-40 to E-59)',
+    'ECA': 'ECA (Call signs From E-60 to E-79)',
+    'CADET_STUDENTS': 'Students (Call Signs From C-80 to C-99)'
+};
+
+const CALLSIGN_RANGES = {
+    'MANAGEMENT_STAFF': [],
+    'HOSPITAL_SUPERVISOR': [],
+    'HUMAN_RESOURCES': [],
+    'CHIEF_OF_DOCTOR': [],
+    'DOCTORS': [],
+    'EMS_SUPERVISOR': [],
+    'MEDICAL_DIRECTOR': [],
+    'PARAMEDIC_SUPERVISOR': [],
+    'PARAMEDIC_OFFICER': Array.from({length: 20}, (_, i) => `P-${String(i + 1).padStart(2, '0')}`),
+    'SENIOR_PARAMEDICS': Array.from({length: 19}, (_, i) => `P-${String(i + 21).padStart(2, '0')}`),
+    'SENIOR_EMT': Array.from({length: 20}, (_, i) => `E-${String(i + 40).padStart(2, '0')}`),
+    'ECA': Array.from({length: 20}, (_, i) => `E-${String(i + 60).padStart(2, '0')}`),
+    'CADET_STUDENTS': Array.from({length: 20}, (_, i) => `C-${String(i + 80).padStart(2, '0')}`)
+};
+
+const TITLE_TO_DEPARTMENT_MAP = {
+    'DEPUTY CHIEF': 'MANAGEMENT_STAFF',
+    'CHIEF OF HOSPITAL': 'MANAGEMENT_STAFF',
+    'Hospital supervisor': 'HOSPITAL_SUPERVISOR',
+    'Human Resources': 'HUMAN_RESOURCES',
+    'CHIEF OF DOCTOR': 'CHIEF_OF_DOCTOR',
+    'DOCTOR': 'DOCTORS',
+    'Junior Doctor': 'DOCTORS',
+    'EMS Supervisor': 'EMS_SUPERVISOR',
+    'Medical Director': 'MEDICAL_DIRECTOR',
+    'Paramedic Officer': 'PARAMEDIC_SUPERVISOR',
+    'Licensed Paramedic': 'PARAMEDIC_OFFICER',
+    'Paramedics': 'SENIOR_PARAMEDICS',
+    'Senior Paramedics': 'SENIOR_PARAMEDICS',
+    'EMT': 'SENIOR_EMT',
+    'Advanced EMT': 'SENIOR_EMT',
+    'ECA': 'ECA',
+    'Students': 'CADET_STUDENTS'
 };
 
 let currentEditMemberId = null;
 let currentPhotoBase64 = null;
 let editPhotoBase64 = null;
+
+function setDepartmentByTitle() {
+    const titleSelect = document.getElementById('title');
+    const departmentInput = document.getElementById('department');
+    const departmentValueInput = document.getElementById('departmentValue');
+    const callsignSelect = document.getElementById('callsign');
+    
+    const selectedTitle = titleSelect.value;
+    const departmentKey = TITLE_TO_DEPARTMENT_MAP[selectedTitle];
+    
+    if (departmentKey) {
+        departmentInput.value = DEPARTMENTS_MAP[departmentKey];
+        departmentValueInput.value = departmentKey;
+        populateCallsignDropdown('callsign', departmentKey);
+    } else {
+        departmentInput.value = '';
+        departmentValueInput.value = '';
+        populateCallsignDropdown('callsign', null);
+    }
+}
+
+function setEditDepartmentByTitle() {
+    const titleSelect = document.getElementById('editTitle');
+    const departmentInput = document.getElementById('editDepartment');
+    const departmentValueInput = document.getElementById('editDepartmentValue');
+    const callsignSelect = document.getElementById('editCallsign');
+    
+    const selectedTitle = titleSelect.value;
+    const departmentKey = TITLE_TO_DEPARTMENT_MAP[selectedTitle];
+    
+    if (departmentKey) {
+        departmentInput.value = DEPARTMENTS_MAP[departmentKey];
+        departmentValueInput.value = departmentKey;
+        populateCallsignDropdown('editCallsign', departmentKey);
+    } else {
+        departmentInput.value = '';
+        departmentValueInput.value = '';
+        populateCallsignDropdown('editCallsign', null);
+    }
+}
+
+function populateCallsignDropdown(selectId, departmentKey) {
+    const select = document.getElementById(selectId);
+    const currentValue = select.value;
+    
+    // Roles that require manual call sign assignment
+    const manualCallsignRoles = [
+        'MANAGEMENT_STAFF',
+        'HOSPITAL_SUPERVISOR', 
+        'HUMAN_RESOURCES',
+        'CHIEF_OF_DOCTOR',
+        'DOCTORS',
+        'EMS_SUPERVISOR',
+        'MEDICAL_DIRECTOR',
+        'PARAMEDIC_SUPERVISOR'
+    ];
+    
+    // Check if this department requires manual call sign assignment
+    if (manualCallsignRoles.includes(departmentKey)) {
+        // Replace select with text input for manual entry
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.id = selectId;
+        input.name = 'callsign';
+        input.placeholder = 'أدخل رمز النداء يدوياً';
+        input.className = 'form-control';
+        if (currentValue) {
+            input.value = currentValue;
+        }
+        select.parentNode.replaceChild(input, select);
+        return;
+    }
+    
+    select.innerHTML = '<option value="">اختر رمز النداء</option>';
+    
+    if (departmentKey && CALLSIGN_RANGES[departmentKey]) {
+        const callsigns = CALLSIGN_RANGES[departmentKey];
+        const members = getMembers();
+        const usedCallsigns = members.filter(m => m.department === departmentKey).map(m => m.callsign);
+        
+        callsigns.forEach(callsign => {
+            if (!usedCallsigns.includes(callsign)) {
+                const option = document.createElement('option');
+                option.value = callsign;
+                option.textContent = callsign;
+                select.appendChild(option);
+            }
+        });
+        
+        if (currentValue && callsigns.includes(currentValue) && !usedCallsigns.includes(currentValue)) {
+            select.value = currentValue;
+        }
+    } else {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.id = selectId;
+        input.name = 'callsign';
+        input.placeholder = 'أدخل رمز النداء يدوياً';
+        input.className = 'form-control';
+        if (currentValue) {
+            input.value = currentValue;
+        }
+        select.parentNode.replaceChild(input, select);
+    }
+}
 
 function checkAuth() {
     if (!sessionStorage.getItem('emsAdminSession')) {
@@ -138,7 +282,7 @@ function handleAddMember() {
         hireDate: formData.get('hireDate'),
         lastPromotion: formData.get('lastPromotion'),
         discord: formData.get('discord').trim(),
-        department: formData.get('department'),
+        department: formData.get('departmentValue') || formData.get('department'),
         notes: formData.get('notes').trim(),
         mi: document.getElementById('mi').checked,
         air: document.getElementById('air').checked,
@@ -162,6 +306,22 @@ function handleAddMember() {
         form.reset();
         document.getElementById('photoPreview').innerHTML = '';
         currentPhotoBase64 = null;
+        
+        // Reset call sign field properly
+        const callsignField = document.getElementById('callsign');
+        if (callsignField) {
+            if (callsignField.tagName === 'INPUT') {
+                callsignField.value = '';
+            } else {
+                // Replace with fresh select if it was a dropdown
+                const select = document.createElement('select');
+                select.id = 'callsign';
+                select.name = 'callsign';
+                select.innerHTML = '<option value="">اختر رمز النداء</option>';
+                callsignField.parentNode.replaceChild(select, callsignField);
+            }
+        }
+        
         renderAdminTable();
     } catch (error) {
         showError('حدث خطأ أثناء إضافة العضو');
@@ -183,11 +343,11 @@ function handleEditMember(id) {
     document.getElementById('editFirstName').value = member.firstName || '';
     document.getElementById('editLastName').value = member.lastName || '';
     document.getElementById('editTitle').value = member.title || '';
-    document.getElementById('editCallsign').value = member.callsign || '';
     document.getElementById('editHireDate').value = member.hireDate || '';
     document.getElementById('editLastPromotion').value = member.lastPromotion || '';
     document.getElementById('editDiscord').value = member.discord || '';
-    document.getElementById('editDepartment').value = member.department || '';
+    document.getElementById('editDepartment').value = DEPARTMENTS_MAP[member.department] || member.department || '';
+    document.getElementById('editDepartmentValue').value = member.department || '';
     document.getElementById('editNotes').value = member.notes || '';
     document.getElementById('editMi').checked = member.mi || false;
     document.getElementById('editAir').checked = member.air || false;
@@ -200,6 +360,15 @@ function handleEditMember(id) {
         editPhotoPreview.innerHTML = '';
     }
     
+    setEditDepartmentByTitle();
+    
+    setTimeout(() => {
+        const editCallsignField = document.getElementById('editCallsign');
+        if (editCallsignField) {
+            editCallsignField.value = member.callsign || '';
+        }
+    }, 100);
+    
     const modal = document.getElementById('editModal');
     modal.classList.add('active');
 }
@@ -211,6 +380,21 @@ function closeEditModal() {
     editPhotoBase64 = null;
     document.getElementById('editMemberForm').reset();
     document.getElementById('editPhotoPreview').innerHTML = '';
+    
+    // Reset call sign field properly
+    const editCallsignField = document.getElementById('editCallsign');
+    if (editCallsignField) {
+        if (editCallsignField.tagName === 'INPUT') {
+            editCallsignField.value = '';
+        } else {
+            // Replace with fresh select if it was a dropdown
+            const select = document.createElement('select');
+            select.id = 'editCallsign';
+            select.name = 'callsign';
+            select.innerHTML = '<option value="">اختر رمز النداء</option>';
+            editCallsignField.parentNode.replaceChild(select, editCallsignField);
+        }
+    }
 }
 
 function handleUpdateMember() {
@@ -230,7 +414,7 @@ function handleUpdateMember() {
         hireDate: formData.get('hireDate'),
         lastPromotion: formData.get('lastPromotion'),
         discord: formData.get('discord').trim(),
-        department: formData.get('department'),
+        department: formData.get('departmentValue') || formData.get('department'),
         notes: formData.get('notes').trim(),
         mi: document.getElementById('editMi').checked,
         air: document.getElementById('editAir').checked,

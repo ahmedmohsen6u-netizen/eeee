@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - EMS Roster</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <img src="B5C96CFC-040F-400C-ACFA-7E7A7CFD82CD-removebg-preview.png" alt="EMS Logo" class="login-logo">
+                <div class="login-title-section">
+                    <h2>تسجيل الدخول</h2>
+                    <button class="theme-toggle" onclick="toggleTheme()" aria-label="تبديل الوضع الليلi">
+                        <span class="icon">🌙</span>
+                        <span class="text">الوضع الليلي</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="errorMessage" class="error-message"></div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">اسم المستخدم</label>
+                    <input type="text" id="username" name="username" required autocomplete="username">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">كلمة المرور</label>
+                    <input type="password" id="password" name="password" required autocomplete="current-password">
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="btn btn-secondary" style="width: 100%;">دخول</button>
+                </div>
+            </form>
+            
+            <div class="back-link">
+                <a href="index.html">العودة إلى الصفحة الرئيسية</a>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #E0E0E0; color: #616161; font-size: 0.9em;">
+                <p><strong>بيانات الدخول الافتراضية:</strong></p>
+                <p>اسم المستخدم: <strong>admin</strong></p>
+                <p>كلمة المرور: <strong>admin123</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/storage.js"></script>
+    <script src="js/login.js"></script>
+    <script src="js/theme.js"></script>
+</body>
+</html>

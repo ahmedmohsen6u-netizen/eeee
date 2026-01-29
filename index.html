@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMS Roster - نظام الروستر الطبي</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <img src="B5C96CFC-040F-400C-ACFA-7E7A7CFD82CD-removebg-preview.png" alt="EMS Logo" class="logo">
+                <h1>نظام الروستر الطبي - EMS Roster</h1>
+            </div>
+            <div class="header-actions">
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="تبديل الوضع الليلي">
+                    <span class="icon">🌙</span>
+                    <span class="text">الوضع الليلي</span>
+                </button>
+                <a href="login.html" class="btn btn-primary">لوحة الإدارة</a>
+            </div>
+        </header>
+
+        <div class="table-container">
+            <div class="table-scroll">
+                <table id="rosterTable">
+                    <thead>
+                        <tr>
+                            <th>First</th>
+                            <th>Last</th>
+                            <th>Title</th>
+                            <th>Callsign</th>
+                            <th>Hire date</th>
+                            <th>Last prom.</th>
+                            <th>Discord</th>
+                            <th>MI</th>
+                            <th>AIR</th>
+                            <th>FP</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rosterBody">
+                        <tr>
+                            <td colspan="11" class="empty-state">
+                                <div>
+                                    <h3>لا توجد بيانات</h3>
+                                    <p>لم يتم إضافة أي أعضاء بعد. يرجى الانتقال إلى لوحة الإدارة لإضافة أعضاء جدد.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="memberModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeMemberDetails()">&times;</span>
+            <div id="memberModalContent">
+                <img id="modalPhoto" class="member-photo" src="" alt="Member Photo" style="display: none;">
+                <div class="member-details">
+                    <h2 id="modalName"></h2>
+                    <p id="modalTitle"></p>
+                    <p id="modalDepartment"></p>
+                    <p id="modalCallsign"></p>
+                    <p id="modalDiscord"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/storage.js"></script>
+    <script src="js/roster.js"></script>
+    <script src="js/theme.js"></script>
+</body>
+</html>

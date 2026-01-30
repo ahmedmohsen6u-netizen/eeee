@@ -215,8 +215,21 @@ function updateCloudStatus() {
 // Test cloud connection
 async function testCloudConnection() {
     const messageDiv = document.getElementById('cloudMessage');
-    const repoOwner = document.getElementById('repoOwner').value.trim();
-    const repoName = document.getElementById('repoName').value.trim();
+    // Extract repo owner and name from input
+    let repoOwner = document.getElementById('repoOwner').value.trim();
+    let repoName = document.getElementById('repoName').value.trim();
+    
+    // Handle case where user enters full repo path in owner field (e.g., "owner/repo")
+    if (repoOwner.includes('/')) {
+        const parts = repoOwner.split('/');
+        if (parts.length === 2) {
+            repoOwner = parts[0].trim();
+            repoName = parts[1].trim();
+            // Auto-fill the repo name field
+            document.getElementById('repoName').value = repoName;
+        }
+    }
+    
     const githubToken = document.getElementById('githubToken').value.trim();
     
     if (!repoOwner || !repoName) {
@@ -291,8 +304,21 @@ async function saveCloudConfig(event) {
     event.preventDefault();
     
     const messageDiv = document.getElementById('cloudMessage');
-    const repoOwner = document.getElementById('repoOwner').value.trim();
-    const repoName = document.getElementById('repoName').value.trim();
+    // Extract repo owner and name from input
+    let repoOwner = document.getElementById('repoOwner').value.trim();
+    let repoName = document.getElementById('repoName').value.trim();
+    
+    // Handle case where user enters full repo path in owner field (e.g., "owner/repo")
+    if (repoOwner.includes('/')) {
+        const parts = repoOwner.split('/');
+        if (parts.length === 2) {
+            repoOwner = parts[0].trim();
+            repoName = parts[1].trim();
+            // Auto-fill the repo name field
+            document.getElementById('repoName').value = repoName;
+        }
+    }
+    
     const githubToken = document.getElementById('githubToken').value.trim();
     
     if (!repoOwner || !repoName) {

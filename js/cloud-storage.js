@@ -192,6 +192,30 @@ class CloudStorage {
                     }
                 } else if (response.status === 404) {
                     errorMessage = `Repository or path not found. Make sure the repository exists and is accessible.`;
+                } else if (response.status === 409) {
+                    // Handle conflict by fetching the latest version and retrying
+                    errorMessage = `Conflict detected. The file was modified by another process. Attempting to resolve...`;
+                    
+                    // Get the latest file SHA
+                    const latestFile = await this.getFile(filename);
+                    if (latestFile) {
+                        // Retry with the latest SHA
+                        body.sha = latestFile.sha;
+                        const retryResponse = await fetch(`${this.baseUrl}/contents/${this.config.dataPath}${filename}`, {
+                            method: 'PUT',
+                            headers: this.getHeaders(),
+                            body: JSON.stringify(body)
+                        });
+                        
+                        if (retryResponse.ok) {
+                            const retryResult = await retryResponse.json();
+                            return {
+                                success: true,
+                                sha: retryResult.content.sha,
+                                commit: retryResult.commit.sha
+                            };
+                        }
+                    }
                 } else if (response.status === 422) {
                     if (errorData.message && errorData.message.includes('sha')) {
                         errorMessage = `SHA conflict. The file may have been modified by another process. Please try again.`;

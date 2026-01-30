@@ -227,11 +227,18 @@ async function testCloudConnection() {
     // Show loading message with animation
     showCloudMessage(messageDiv, '<div class="loading-spinner"></div> جاري التحقق من المستودع...', 'info');
     
+    // Debug: Log the values being used
+    console.log('Testing connection with:', {
+        repoOwner: repoOwner,
+        repoName: repoName,
+        githubToken: githubToken ? '[TOKEN_PROVIDED]' : '[NO_TOKEN]'
+    });
+    
     try {
         // Create temporary cloud storage instance for testing
         const testConfig = {
-            repoOwner: repoOwner,
-            repoName: repoName,
+            repoOwner: repoOwner.trim(),
+            repoName: repoName.trim(),
             githubToken: githubToken || '',
             branch: 'main',
             dataPath: 'data/'

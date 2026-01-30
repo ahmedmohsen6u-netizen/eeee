@@ -1,1 +1,1 @@
-"[\n  {\n    \"id\": \"1\",\n    \"firstName\": \"Ø£Ø­ÙØ¯\",\n    \"lastName\": \"ÙØ­ÙØ¯\",\n    \"title\": \"Paramedics\",\n    \"callsign\": \"P-21\",\n    \"department\": \"SENIOR_PARAMEDICS\",\n    \"mi\": true,\n    \"air\": false,\n    \"fp\": true\n  },\n  {\n    \"id\": \"2\",\n    \"firstName\": \"Ø¹ÙÙ\",\n    \"lastName\": \"ÙØ­ÙÙØ¯\",\n    \"title\": \"Advanced EMT\",\n    \"callsign\": \"E-40\",\n    \"department\": \"SENIOR_EMT\",\n    \"mi\": false,\n    \"air\": true,\n    \"fp\": false\n  }\n]"
+"[]"

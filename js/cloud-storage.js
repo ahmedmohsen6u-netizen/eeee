@@ -12,15 +12,7 @@ class CloudStorage {
             ...config
         };
         
-        // Debug: Log the configuration
-        console.log('CloudStorage initialized with config:', {
-            repoOwner: this.config.repoOwner,
-            repoName: this.config.repoName,
-            dataPath: this.config.dataPath
-        });
-        
         this.baseUrl = `https://api.github.com/repos/${this.config.repoOwner}/${this.config.repoName}`;
-        console.log('Base URL constructed:', this.baseUrl);
     }
 
     // Get headers for GitHub API requests
@@ -133,7 +125,6 @@ class CloudStorage {
     async getFile(filename) {
         try {
             const url = `${this.baseUrl}/contents/${this.config.dataPath}${filename}?ref=${this.config.branch}`;
-            console.log('Getting file from URL:', url);
             
             const response = await fetch(url, {
                 headers: this.getHeaders()

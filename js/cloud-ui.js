@@ -233,19 +233,12 @@ async function testCloudConnection() {
     const githubToken = document.getElementById('githubToken').value.trim();
     
     if (!repoOwner || !repoName) {
-        showMessage(messageDiv, 'يرجى إدخال اسم المستخدم واسم المستودع', 'error');
+        showCloudMessage(messageDiv, 'يرجى إدخال اسم المستخدم واسم المستودع', 'error');
         return;
     }
     
     // Show loading message with animation
     showCloudMessage(messageDiv, '<div class="loading-spinner"></div> جاري التحقق من المستودع...', 'info');
-    
-    // Debug: Log the values being used
-    console.log('Testing connection with:', {
-        repoOwner: repoOwner,
-        repoName: repoName,
-        githubToken: githubToken ? '[TOKEN_PROVIDED]' : '[NO_TOKEN]'
-    });
     
     try {
         // Create temporary cloud storage instance for testing
@@ -301,9 +294,16 @@ async function testCloudConnection() {
 
 // Save cloud configuration
 async function saveCloudConfig(event) {
+    console.log('saveCloudConfig function called!'); // Debug
     event.preventDefault();
     
     const messageDiv = document.getElementById('cloudMessage');
+    if (!messageDiv) {
+        console.error('cloudMessage div not found!'); // Debug
+        return;
+    }
+    
+    console.log('messageDiv found, proceeding...'); // Debug
     // Extract repo owner and name from input
     let repoOwner = document.getElementById('repoOwner').value.trim();
     let repoName = document.getElementById('repoName').value.trim();
@@ -331,6 +331,7 @@ async function saveCloudConfig(event) {
     
     try {
         // Save configuration to localStorage
+        localStorage.setItem('emsCloudEnabled', 'true');
         localStorage.setItem('emsRepoOwner', repoOwner);
         localStorage.setItem('emsRepoName', repoName);
         if (githubToken) {
@@ -459,7 +460,7 @@ function showCreateRepositoryHelp(repoOwner, repoName) {
 رابط مباشر: https://github.com/new?name=${encodeURIComponent(repoName)}
     `;
     
-    showMessage(messageDiv, helpMessage, 'info');
+    showCloudMessage(messageDiv, helpMessage, 'info');
 }
 
 // Debug function to check configuration
@@ -484,7 +485,7 @@ function debugCloudConfig() {
 4. إذا كان المستودع عام، قد لا تحتاج إلى Token
     `;
     
-    showMessage(messageDiv, debugInfo, 'info');
+    showCloudMessage(messageDiv, debugInfo, 'info');
 }
 
 // Show GitHub token creation help
@@ -547,7 +548,14 @@ document.addEventListener('DOMContentLoaded', function() {
         loadCloudConfig();
         
         // Add form submit handler
-        document.getElementById('cloudConfigForm').addEventListener('submit', saveCloudConfig);
+        const form = document.getElementById('cloudConfigForm');
+        console.log('Found cloudConfigForm:', !!form); // Debug
+        if (form) {
+            form.addEventListener('submit', function(event) {
+                console.log('Form submit event triggered!'); // Debug
+                saveCloudConfig(event);
+            });
+        }
     }
     
     // Update status immediately and then periodically (only if on admin page)

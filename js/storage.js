@@ -43,6 +43,8 @@ function initCloudStorage() {
             
             // Only proceed if we have valid configuration
             if (repoOwner && repoName) {
+                console.log('Initializing cloud storage with:', { repoOwner, repoName, hasToken: !!githubToken });
+                
                 // Update global config
                 if (typeof CLOUD_CONFIG !== 'undefined') {
                     Object.assign(CLOUD_CONFIG, {

@@ -74,10 +74,10 @@ function renderRoster() {
             }
             
             deptMembers.forEach(member => {
+                const displayName = member.fullName || (member.firstName + ' ' + member.lastName) || 'غير محدد';
                 html += `
                     <tr class="fade-in">
-                        <td><a href="#" class="member-name" onclick="showMemberDetails('${member.id}'); return false;">${sanitizeHTML(member.firstName || '')}</a></td>
-                        <td>${sanitizeHTML(member.lastName || '')}</td>
+                        <td><a href="#" class="member-name" onclick="showMemberDetails('${member.id}'); return false;">${sanitizeHTML(displayName)}</a></td>
                         <td>${sanitizeHTML(member.title || '')}</td>
                         <td>${sanitizeHTML(member.callsign || '')}</td>
                         <td>${sanitizeHTML(member.hireDate || '')}</td>
@@ -93,14 +93,14 @@ function renderRoster() {
         } else {
             html += `
                 <tr class="fade-in">
-                    <td colspan="11" style="text-align: center; color: #999; padding: 15px; font-style: italic;">لا يوجد أعضاء في هذا القسم</td>
+                    <td colspan="10" style="text-align: center; color: #999; padding: 15px; font-style: italic;">لا يوجد أعضاء في هذا القسم</td>
                 </tr>
             `;
         }
         
         html += `
             <tr>
-                <td colspan="11" class="department-separator" style="height: 15px; padding: 0; background: linear-gradient(90deg, transparent, #C8E6C9, transparent);"></td>
+                <td colspan="10" class="department-separator" style="height: 15px; padding: 0; background: linear-gradient(90deg, transparent, #C8E6C9, transparent);"></td>
             </tr>
         `;
     });
@@ -118,26 +118,95 @@ function showMemberDetails(memberId) {
     const member = getMemberById(memberId);
     if (!member) return;
     
+    const displayName = member.fullName || (member.firstName + ' ' + member.lastName) || 'غير محدد';
     const memberInfo = `
-📋 **معلومات العضو**
+<div class="member-details-container">
+    <div class="details-section">
+        <div class="section-title">
+            <span class="section-icon">�</span>
+            <span class="section-text">المعلومات الشخصية</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">الاسم الكامل:</span>
+            <span class="detail-value">${sanitizeHTML(displayName)}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">المنصب:</span>
+            <span class="detail-value">${member.title || 'غير محدد'}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">القسم:</span>
+            <span class="detail-value">${DEPARTMENTS[member.department] || 'غير محدد'}</span>
+        </div>
+    </div>
 
-👤 **الاسم:** ${member.firstName || ''} ${member.lastName || ''}
-💼 **المنصب:** ${member.title || ''}
-🏥 **القسم:** ${DEPARTMENTS[member.department] || ''}
-📞 **الرمز:** ${member.callsign || 'غير متوفر'}
-💬 **ديسكورد:** ${member.discord || 'غير متوفر'}
-📅 **تاريخ التوظيف:** ${member.hireDate || 'غير متوفر'}
-🎖️ **آخر ترقية:** ${member.lastPromotion || 'غير متوفر'}
-✈️ **MI:** ${member.mi ? '✅ متوفر' : '❌ غير متوفر'}
-🚁 **AIR:** ${member.air ? '✅ متوفر' : '❌ غير متوفر'}
-🚓 **FP:** ${member.fp ? '✅ متوفر' : '❌ غير متوفر'}
-📝 **ملاحظات:** ${member.notes || 'لا توجد ملاحظات'}
+    <div class="details-section">
+        <div class="section-title">
+            <span class="section-icon">📞</span>
+            <span class="section-text">معلومات الاتصال</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">الرمز:</span>
+            <span class="detail-value callsign-badge">${member.callsign || 'غير متوفر'}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">ديسكورد:</span>
+            <span class="detail-value">${member.discord || 'غير متوفر'}</span>
+        </div>
+    </div>
+
+    <div class="details-section">
+        <div class="section-title">
+            <span class="section-icon">📅</span>
+            <span class="section-text">المعلومات الوظيفية</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">تاريخ التعيين:</span>
+            <span class="detail-value">${member.hireDate || 'غير متوفر'}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">آخر ترقية:</span>
+            <span class="detail-value">${member.lastPromotion || 'غير متوفر'}</span>
+        </div>
+    </div>
+
+    <div class="details-section">
+        <div class="section-title">
+            <span class="section-icon">🏆</span>
+            <span class="section-text">الشهادات والتدريبات</span>
+        </div>
+        <div class="certifications-grid">
+            <div class="certification-item ${member.mi ? 'certified' : 'not-certified'}">
+                <span class="cert-icon">${member.mi ? '✅' : '❌'}</span>
+                <span class="cert-name">MI</span>
+            </div>
+            <div class="certification-item ${member.air ? 'certified' : 'not-certified'}">
+                <span class="cert-icon">${member.air ? '✅' : '❌'}</span>
+                <span class="cert-name">AIR</span>
+            </div>
+            <div class="certification-item ${member.fp ? 'certified' : 'not-certified'}">
+                <span class="cert-icon">${member.fp ? '✅' : '❌'}</span>
+                <span class="cert-name">FP</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="details-section">
+        <div class="section-title">
+            <span class="section-icon">📝</span>
+            <span class="section-text">ملاحظات</span>
+        </div>
+        <div class="notes-content">
+            ${member.notes ? `<p class="notes-text">${sanitizeHTML(member.notes)}</p>` : '<p class="no-notes">لا توجد ملاحظات</p>'}
+        </div>
+    </div>
+</div>
     `;
     
     if (member.photo) {
-        showCustomDialogWithImage(memberInfo, member.photo, `${member.firstName || ''} ${member.lastName || ''}`);
+        showCustomDialogWithImage(memberInfo, member.photo, displayName);
     } else {
-        showCustomDialog(memberInfo, `${member.firstName || ''} ${member.lastName || ''}`);
+        showCustomDialog(memberInfo, displayName);
     }
 }
 

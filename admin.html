@@ -53,13 +53,8 @@
             <form id="addMemberForm">
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="firstName">الاسم الأول *</label>
-                        <input type="text" id="firstName" name="firstName" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="lastName">الاسم الأخير *</label>
-                        <input type="text" id="lastName" name="lastName" required>
+                        <label for="fullName">الاسم الكامل *</label>
+                        <input type="text" id="fullName" name="fullName" placeholder="أدخل الاسم الكامل" required>
                     </div>
                     
                     <div class="form-group">
@@ -136,8 +131,20 @@
                 
                 <div class="form-group">
                     <label for="photo">صورة العضو</label>
-                    <input type="file" id="photo" name="photo" accept="image/*">
-                    <div id="photoPreview" style="margin-top: 15px; text-align: center;"></div>
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="photo" name="photo" accept="image/*">
+                        <label for="photo" class="file-upload-label">
+                            <div class="file-upload-icon">📷</div>
+                            <div class="file-upload-text">
+                                <div>اختر صورة العضو</div>
+                                <div class="file-upload-hint">أو اسحب الصورة هنا</div>
+                            </div>
+                            <img class="photo-preview" id="photoPreview" alt="Preview">
+                            <div class="photo-preview-overlay">
+                                <span class="change-photo-text">تغيير الصورة</span>
+                            </div>
+                        </label>
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -152,12 +159,11 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>First</th>
-                            <th>Last</th>
-                            <th>Title</th>
-                            <th>Callsign</th>
-                            <th>Department</th>
-                            <th>Discord</th>
+                            <th>الاسم</th>
+                            <th>المسمى الوظيفي</th>
+                            <th>الرمز</th>
+                            <th>القسم</th>
+                            <th>ديسكورد</th>
                             <th>MI</th>
                             <th>AIR</th>
                             <th>FP</th>
@@ -166,7 +172,7 @@
                     </thead>
                     <tbody id="adminTableBody">
                         <tr>
-                            <td colspan="10" class="empty-state">
+                            <td colspan="9" class="empty-state">
                                 <div>
                                     <h3>لا توجد بيانات</h3>
                                     <p>لم يتم إضافة أي أعضاء بعد</p>
@@ -176,6 +182,198 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+
+        <div class="form-container">
+            <h2 style="color: var(--primary-red); margin-bottom: 25px; font-size: 1.8em;">إعدادات التخزين السحابي</h2>
+            
+            <!-- Cloud Storage Status Card -->
+            <div class="cloud-status-card" id="cloudStatusCard">
+                <div class="status-header">
+                    <div class="status-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+                        </svg>
+                    </div>
+                    <div class="status-info">
+                        <h3>حالة التخزين السحابي</h3>
+                        <p id="cloudStatusText">غير مفعل</p>
+                    </div>
+                    <div class="status-toggle">
+                        <label class="switch">
+                            <input type="checkbox" id="enableCloud" onchange="toggleCloudStorage()">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="status-details" id="lastSyncTime">آخر مزامنة: غير متاحة</div>
+            </div>
+            
+            <!-- Cloud Configuration Tabs -->
+            <div class="cloud-tabs-container" id="cloudTabsContainer">
+                <div class="tabs-header">
+                    <div class="tab-item active" data-tab="config">
+                        <div class="tab-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M12 1v6m0 6v6m4.22-13.22l4.24 4.24M18.36 18.36l4.24 4.24M20.66 12h6M-2 12h6m13.22 4.22l4.24 4.24M2.34 2.34l4.24 4.24"/>
+                            </svg>
+                        </div>
+                        <span>الإعدادات</span>
+                        <div class="tab-lock">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="tab-item" data-tab="status">
+                        <div class="tab-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                            </svg>
+                        </div>
+                        <span>الحالة</span>
+                        <div class="tab-lock">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tabs-content">
+                    <!-- Configuration Tab -->
+                    <div class="tab-content active" id="config-tab">
+                        <div class="config-form">
+                            <div class="form-group">
+                                <label for="repoOwner">
+                                    <div class="label-icon">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                            <circle cx="12" cy="7" r="4"/>
+                                        </svg>
+                                    </div>
+                                    اسم المستخدم على GitHub
+                                </label>
+                                <div class="input-wrapper">
+                                    <input type="text" id="repoOwner" name="repoOwner" placeholder="your-username" class="modern-input">
+                                    <div class="input-icon">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <small>اسم المستخدم الخاص بك في GitHub</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="repoName">
+                                    <div class="label-icon">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                                        </svg>
+                                    </div>
+                                    اسم المستودع
+                                </label>
+                                <div class="input-wrapper">
+                                    <input type="text" id="repoName" name="repoName" placeholder="ems-roster-data" class="modern-input">
+                                    <div class="input-icon">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <small>اسم المستودع الذي سيتم تخزين البيانات فيه</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="githubToken">
+                                    <div class="label-icon">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                        </svg>
+                                    </div>
+                                    GitHub Token
+                                    <span class="optional">(اختياري)</span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <input type="password" id="githubToken" name="githubToken" placeholder="ghp_xxxxxxxxxxxx" class="modern-input">
+                                    <button type="button" onclick="showTokenHelp()" class="input-help-btn" title="مساعدة">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"/>
+                                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <small>Token للوصول إلى GitHub (يوصى به للحدود الأعلى للطلبات)</small>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="button" onclick="testCloudConnection()" class="btn btn-modern btn-primary">
+                                    <span class="btn-icon">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                            <circle cx="12" cy="12" r="3"/>
+                                        </svg>
+                                    </span>
+                                    اختبار الاتصال
+                                </button>
+                                <button type="submit" class="btn btn-modern btn-success">
+                                    <span class="btn-icon">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                            <polyline points="17 21 17 13 7 13 7 21"/>
+                                            <polyline points="7 3 7 8 15 8"/>
+                                        </svg>
+                                    </span>
+                                    حفظ الإعدادات ومزامنة البيانات
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Status Tab -->
+                    <div class="tab-content" id="status-tab">
+                        <div class="status-content">
+                            <div class="status-info-grid">
+                                <div class="info-item">
+                                    <div class="info-label">حالة الاتصال</div>
+                                    <div class="info-value" id="connectionStatus">غير متصل</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">المستودع</div>
+                                    <div class="info-value" id="repoInfo">غير محدد</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">آخر مزامنة</div>
+                                    <div class="info-value" id="syncInfo">غير متاحة</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">نوع المستودع</div>
+                                    <div class="info-value" id="repoTypeInfo">غير محدد</div>
+                                </div>
+                            </div>
+                            <div class="sync-actions">
+                                <button type="button" onclick="manualSync()" class="btn btn-modern btn-outline">
+                                    <span class="btn-icon">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="23 4 23 10 17 10"/>
+                                            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                                        </svg>
+                                    </span>
+                                    مزامنة يدوية
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="cloudMessage" class="cloud-message" style="margin-top: 15px;"></div>
         </div>
     </div>
 
@@ -189,13 +387,8 @@
                 
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="editFirstName">الاسم الأول *</label>
-                        <input type="text" id="editFirstName" name="firstName" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="editLastName">الاسم الأخير *</label>
-                        <input type="text" id="editLastName" name="lastName" required>
+                        <label for="editFullName">الاسم الكامل *</label>
+                        <input type="text" id="editFullName" name="fullName" placeholder="أدخل الاسم الكامل" required>
                     </div>
                     
                     <div class="form-group">
@@ -272,8 +465,20 @@
                 
                 <div class="form-group">
                     <label for="editPhoto">تغيير الصورة (اختياري)</label>
-                    <input type="file" id="editPhoto" name="photo" accept="image/*">
-                    <div id="editPhotoPreview" style="margin-top: 15px; text-align: center;"></div>
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="editPhoto" name="photo" accept="image/*">
+                        <label for="editPhoto" class="file-upload-label">
+                            <div class="file-upload-icon">📷</div>
+                            <div class="file-upload-text">
+                                <div>اختر صورة جديدة</div>
+                                <div class="file-upload-hint">أو اسحب الصورة هنا</div>
+                            </div>
+                            <img class="photo-preview" id="editPhotoPreview" alt="Preview">
+                            <div class="photo-preview-overlay">
+                                <span class="change-photo-text">تغيير الصورة</span>
+                            </div>
+                        </label>
+                    </div>
                 </div>
                 
                 <div class="form-group" style="display: flex; gap: 15px;">
@@ -284,7 +489,11 @@
         </div>
     </div>
 
+    <script src="js/config.js"></script>
+    <script src="js/cloud-storage.js"></script>
     <script src="js/storage.js"></script>
+    <script src="js/cloud-ui.js"></script>
+    <script src="js/photo-upload.js"></script>
     <script src="js/admin.js"></script>
     <script src="js/theme.js"></script>
 </body>

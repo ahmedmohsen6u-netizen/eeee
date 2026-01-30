@@ -66,11 +66,15 @@ function setDepartmentByTitle() {
     if (departmentKey) {
         departmentInput.value = DEPARTMENTS_MAP[departmentKey];
         departmentValueInput.value = departmentKey;
-        populateCallsignDropdown('callsign', departmentKey);
+        populateCallsignDropdown('callsign', departmentKey).then(() => {
+            // Optional callback after population
+        });
     } else {
         departmentInput.value = '';
         departmentValueInput.value = '';
-        populateCallsignDropdown('callsign', null);
+        populateCallsignDropdown('callsign', null).then(() => {
+            // Optional callback after population
+        });
     }
 }
 
@@ -86,15 +90,19 @@ function setEditDepartmentByTitle() {
     if (departmentKey) {
         departmentInput.value = DEPARTMENTS_MAP[departmentKey];
         departmentValueInput.value = departmentKey;
-        populateCallsignDropdown('editCallsign', departmentKey);
+        populateCallsignDropdown('editCallsign', departmentKey).then(() => {
+            // Optional callback after population
+        });
     } else {
         departmentInput.value = '';
         departmentValueInput.value = '';
-        populateCallsignDropdown('editCallsign', null);
+        populateCallsignDropdown('editCallsign', null).then(() => {
+            // Optional callback after population
+        });
     }
 }
 
-function populateCallsignDropdown(selectId, departmentKey) {
+async function populateCallsignDropdown(selectId, departmentKey) {
     const select = document.getElementById(selectId);
     const currentValue = select.value;
     
@@ -109,6 +117,9 @@ function populateCallsignDropdown(selectId, departmentKey) {
         'MEDICAL_DIRECTOR',
         'PARAMEDIC_SUPERVISOR'
     ];
+    
+    // Clear existing options
+    select.innerHTML = '<option value="">اختر رمز النداء</option>';
     
     // Check if this department requires manual call sign assignment
     if (manualCallsignRoles.includes(departmentKey)) {
@@ -126,11 +137,9 @@ function populateCallsignDropdown(selectId, departmentKey) {
         return;
     }
     
-    select.innerHTML = '<option value="">اختر رمز النداء</option>';
-    
     if (departmentKey && CALLSIGN_RANGES[departmentKey]) {
         const callsigns = CALLSIGN_RANGES[departmentKey];
-        const members = getMembers();
+        const members = await getMembers();
         const usedCallsigns = members.filter(m => m.department === departmentKey).map(m => m.callsign);
         
         callsigns.forEach(callsign => {
@@ -146,6 +155,7 @@ function populateCallsignDropdown(selectId, departmentKey) {
             select.value = currentValue;
         }
     } else {
+        // Default to manual entry if no callsign range defined
         const input = document.createElement('input');
         input.type = 'text';
         input.id = selectId;
@@ -248,10 +258,10 @@ function renderAdminTable() {
     
     let html = '';
     members.forEach(member => {
+        const displayName = member.fullName || (member.firstName + ' ' + member.lastName) || 'غير محدد';
         html += `
             <tr class="fade-in">
-                <td>${sanitizeHTML(member.firstName || '')}</td>
-                <td>${sanitizeHTML(member.lastName || '')}</td>
+                <td>${sanitizeHTML(displayName)}</td>
                 <td>${sanitizeHTML(member.title || '')}</td>
                 <td>${sanitizeHTML(member.callsign || '')}</td>
                 <td>${DEPARTMENTS_MAP[member.department] || member.department || ''}</td>
@@ -266,47 +276,62 @@ function renderAdminTable() {
             </tr>
         `;
     });
-    
+
     tbody.innerHTML = html;
 }
 
 function handleAddMember() {
     const form = document.getElementById('addMemberForm');
     const formData = new FormData(form);
-    
+
+    const fullName = document.getElementById('fullName').value.trim();
+    const title = document.getElementById('title').value;
+    const callsign = document.getElementById('callsign').value.trim();
+    const department = document.getElementById('department').value;
+    const hireDate = document.getElementById('hireDate').value;
+    const lastPromotion = document.getElementById('lastPromotion').value;
+    const discord = document.getElementById('discord').value.trim();
+    const notes = document.getElementById('notes').value.trim();
+
+    if (!fullName || !title || !callsign || !department) {
+        showError('يرجى ملء جميع الحقول المطلوبة');
+        return;
+    }
+
+    // Split full name into first and last name for compatibility
+    const nameParts = fullName.split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
     const memberData = {
-        firstName: formData.get('firstName').trim(),
-        lastName: formData.get('lastName').trim(),
-        title: formData.get('title').trim(),
-        callsign: formData.get('callsign').trim(),
-        hireDate: formData.get('hireDate'),
-        lastPromotion: formData.get('lastPromotion'),
-        discord: formData.get('discord').trim(),
-        department: formData.get('departmentValue') || formData.get('department'),
-        notes: formData.get('notes').trim(),
+        firstName: firstName,
+        lastName: lastName,
+        fullName: fullName,
+        title: title,
+        callsign: callsign,
+        department: department,
+        hireDate: hireDate,
+        lastPromotion: lastPromotion,
+        discord: discord,
+        notes: notes,
         mi: document.getElementById('mi').checked,
         air: document.getElementById('air').checked,
         fp: document.getElementById('fp').checked,
         photo: currentPhotoBase64 || ''
     };
-    
+
     if (!memberData.firstName || !memberData.lastName) {
-        showError('يرجى إدخال الاسم الأول والأخير');
+        showError('يرجى إدخال اسم كامل (اسم أول وأخير)');
         return;
     }
-    
-    if (!memberData.department) {
-        showError('يرجى اختيار القسم');
-        return;
-    }
-    
+
     try {
         addMember(memberData);
         showSuccess('تم إضافة العضو بنجاح');
         form.reset();
         document.getElementById('photoPreview').innerHTML = '';
         currentPhotoBase64 = null;
-        
+
         // Reset call sign field properly
         const callsignField = document.getElementById('callsign');
         if (callsignField) {
@@ -340,8 +365,7 @@ function handleEditMember(id) {
     editPhotoBase64 = member.photo || null;
     
     document.getElementById('editMemberId').value = id;
-    document.getElementById('editFirstName').value = member.firstName || '';
-    document.getElementById('editLastName').value = member.lastName || '';
+    document.getElementById('editFullName').value = member.fullName || (member.firstName + ' ' + member.lastName) || '';
     document.getElementById('editTitle').value = member.title || '';
     document.getElementById('editHireDate').value = member.hireDate || '';
     document.getElementById('editLastPromotion').value = member.lastPromotion || '';
@@ -481,9 +505,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (file) {
             handleImageUpload(file, 'photoPreview', function(base64) {
                 currentPhotoBase64 = base64;
+                updatePhotoLabel('photo', file.name);
             });
         }
     });
+    
+    // Setup drag and drop for photo upload
+    setupPhotoDragAndDrop('photo', 'photoPreview');
     
     const editMemberForm = document.getElementById('editMemberForm');
     editMemberForm.addEventListener('submit', function(e) {
@@ -497,9 +525,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (file) {
             handleImageUpload(file, 'editPhotoPreview', function(base64) {
                 editPhotoBase64 = base64;
+                updatePhotoLabel('editPhoto', file.name);
             });
         }
     });
+    
+    // Setup drag and drop for edit photo upload
+    setupPhotoDragAndDrop('editPhoto', 'editPhotoPreview');
     
     const editModal = document.getElementById('editModal');
     editModal.addEventListener('click', function(e) {
